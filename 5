@@ -1,0 +1,25 @@
+import pandas as pd
+from collections import defaultdict
+from datetime import datetime
+
+df = pd.read_csv("mumbai_weather.csv")
+
+mapped = [
+    (datetime.strptime(row['time'], '%d-%m-%Y').year, float(row['tavg']))
+    for _, row in df.iterrows()
+    if pd.notna(row['tavg'])
+]
+
+grouped = defaultdict(list)
+for year, temp in mapped:
+    grouped[year].append(temp)
+
+reduced = {year: sum(temps)/len(temps) for year, temps in grouped.items()}
+
+coolest = min(reduced, key=reduced.get)
+hottest = max(reduced, key=reduced.get)
+
+for year, avg in sorted(reduced.items()):
+    print(f"Year: {year} - Avg Temp: {avg:.2f}°C")
+print(f"\nCoolest Year: {coolest} with Avg Temp: {reduced[coolest]:.2f}°C")
+print(f"Hottest Year: {hottest} with Avg Temp: {reduced[hottest]:.2f}°C")
